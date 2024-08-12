@@ -218,15 +218,25 @@ int main(void)
 
   HAL_TIM_Base_Start(&htim6);
 
-  HAL_StatusTypeDef rc = wire_reset();
+  HAL_StatusTypeDef rc_1 = wire_reset();
 
   wire_write(0x33);
-
   uint8_t rom_code[8];
   for(int i = 0; i < 8; i++)
 	  rom_code[i] = wire_read();
+  uint8_t crc_1 = wire_crc(rom_code, 7);
 
-  uint8_t crc = wire_crc(rom_code, 7);
+  wire_write(0x44);
+  HAL_Delay(750);
+
+  HAL_StatusTypeDef rc_2 = wire_reset();
+  wire_write(0xcc);
+
+  wire_write(0xbe);
+  uint8_t scratchpad[9];
+  for(int i = 0; i < 9; i++)
+	  scratchpad[i] = wire_read();
+  uint8_t crc_2 = wire_crc(scratchpad, 8);
 
   /* USER CODE END 2 */
 
