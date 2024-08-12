@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include "ds18b20.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,119 +69,6 @@ int __io_putchar(int ch)
   return 1;
 }
 
-void delay_us(uint32_t us) {
-
-	__HAL_TIM_SET_COUNTER(&htim6, 0);
-	while(__HAL_TIM_GET_COUNTER(&htim6) < us)
-	{
-
-	}
-
-}
-
-HAL_StatusTypeDef wire_reset(void) {
-
-	int rc;
-
-	HAL_GPIO_WritePin(DS_GPIO_Port, DS_Pin, GPIO_PIN_RESET);
-	delay_us(480);
-	HAL_GPIO_WritePin(DS_GPIO_Port, DS_Pin, GPIO_PIN_SET);
-	delay_us(70);
-	rc = HAL_GPIO_ReadPin(DS_GPIO_Port, DS_Pin);
-	delay_us(410);
-
-	if(rc == 0)
-		return HAL_OK;
-	else
-		return HAL_ERROR;
-
-}
-
-void write_bit(int value) {
-
-	if(value) {
-
-		HAL_GPIO_WritePin(DS_GPIO_Port, DS_Pin, GPIO_PIN_RESET);
-		delay_us(6);
-		HAL_GPIO_WritePin(DS_GPIO_Port, DS_Pin, GPIO_PIN_SET);
-		delay_us(64);
-
-	}
-	else {
-
-		HAL_GPIO_WritePin(DS_GPIO_Port, DS_Pin, GPIO_PIN_RESET);
-		delay_us(60);
-		HAL_GPIO_WritePin(DS_GPIO_Port, DS_Pin, GPIO_PIN_SET);
-		delay_us(10);
-
-	}
-
-}
-
-int read_bit(void) {
-
-	int rc;
-
-	HAL_GPIO_WritePin(DS_GPIO_Port, DS_Pin, GPIO_PIN_RESET);
-	delay_us(6);
-	HAL_GPIO_WritePin(DS_GPIO_Port, DS_Pin, GPIO_PIN_SET);
-	delay_us(9);
-	rc = HAL_GPIO_ReadPin(DS_GPIO_Port, DS_Pin);
-	delay_us(55);
-	return rc;
-
-}
-
-void wire_write(uint8_t byte) {
-
-	for(int i = 0; i < 8; i++) {
-
-		write_bit(byte & 0x01);
-		byte >>= 1;
-
-	}
-
-}
-
-uint8_t wire_read(void) {
-
-	uint8_t value = 0;
-	for(int i = 0; i < 8; i++) {
-
-		value >>= 1;
-		if(read_bit())
-			value |= 0x80;
-
-	}
-
-	return value;
-
-}
-
-uint8_t byte_crc(uint8_t crc, uint8_t byte)
-{
-  int i;
-  for (i = 0; i < 8; i++) {
-    uint8_t b = crc ^ byte;
-    crc >>= 1;
-    if (b & 0x01)
-      crc ^= 0x8c;
-    byte >>= 1;
-  }
-  return crc;
-}
-
-uint8_t wire_crc(const uint8_t* data, int len)
-{
-  int i;
-    uint8_t crc = 0;
-
-    for (i = 0; i < len; i++)
-      crc = byte_crc(crc, data[i]);
-
-    return crc;
-}
-
 /* USER CODE END 0 */
 
 /**
@@ -216,27 +104,13 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_TIM_Base_Start(&htim6);
+  if (ds18b20_init() != HAL_OK)
+    Error_Handler();
 
-  HAL_StatusTypeDef rc_1 = wire_reset();
+  uint8_t ds1[DS18B20_ROM_CODE_SIZE];
 
-  wire_write(0x33);
-  uint8_t rom_code[8];
-  for(int i = 0; i < 8; i++)
-	  rom_code[i] = wire_read();
-  uint8_t crc_1 = wire_crc(rom_code, 7);
-
-  wire_write(0x44);
-  HAL_Delay(750);
-
-  HAL_StatusTypeDef rc_2 = wire_reset();
-  wire_write(0xcc);
-
-  wire_write(0xbe);
-  uint8_t scratchpad[9];
-  for(int i = 0; i < 9; i++)
-	  scratchpad[i] = wire_read();
-  uint8_t crc_2 = wire_crc(scratchpad, 8);
+  if (ds18b20_read_address(ds1) != HAL_OK)
+    Error_Handler();
 
   /* USER CODE END 2 */
 
@@ -245,6 +119,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+
+	  ds18b20_start_measure(NULL);
+
+	  HAL_Delay(750);
+
+	  float temp = ds18b20_get_temp(NULL);
+	  if (temp >= 80.0f)
+	    printf("Sensor error...\n");
+	  else
+	    printf("T1 = %.1f*C\n", temp);
 
     /* USER CODE BEGIN 3 */
   }
