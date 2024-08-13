@@ -107,10 +107,15 @@ int main(void)
   if (ds18b20_init() != HAL_OK)
     Error_Handler();
 
+  /*
   uint8_t ds1[DS18B20_ROM_CODE_SIZE];
 
   if (ds18b20_read_address(ds1) != HAL_OK)
     Error_Handler();
+  */
+
+  const uint8_t ds1[] = { 0x28, 0xc3, 0xd1, 0x11, 0x0, 0x0, 0x0, 0xfc };
+  const uint8_t ds2[] = { 0x28, 0xa7, 0x02, 0x11, 0x0, 0x0, 0x0, 0xf3 };
 
   /* USER CODE END 2 */
 
@@ -118,17 +123,25 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
-
-	  ds18b20_start_measure(NULL);
+	  //ds18b20_start_measure(NULL);
+	  ds18b20_start_measure(ds1);
+	  ds18b20_start_measure(ds2);
 
 	  HAL_Delay(750);
 
-	  float temp = ds18b20_get_temp(NULL);
+	  float temp = ds18b20_get_temp(ds1);
 	  if (temp >= 80.0f)
 	    printf("Sensor error...\n");
 	  else
 	    printf("T1 = %.1f*C\n", temp);
+
+	  temp = ds18b20_get_temp(ds2);
+	  if (temp >= 80.0f)
+	    printf("Sensor error...\n");
+	  else
+	    printf("T2 = %.1f*C\n", temp);
+
+    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
