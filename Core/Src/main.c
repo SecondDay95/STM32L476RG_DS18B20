@@ -102,6 +102,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM6_Init();
   MX_USART2_UART_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
   if (ds18b20_init() != HAL_OK)
