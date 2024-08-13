@@ -81,7 +81,7 @@ void MX_USART3_UART_Init(void)
   huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
   huart3.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
-  if (HAL_UART_Init(&huart3) != HAL_OK)
+  if (HAL_HalfDuplex_Init(&huart3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -151,11 +151,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_RCC_GPIOC_CLK_ENABLE();
     /**USART3 GPIO Configuration
     PC4     ------> USART3_TX
-    PC5     ------> USART3_RX
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStruct.Pin = GPIO_PIN_4;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -197,9 +196,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
     /**USART3 GPIO Configuration
     PC4     ------> USART3_TX
-    PC5     ------> USART3_RX
     */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_4|GPIO_PIN_5);
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_4);
 
   /* USER CODE BEGIN USART3_MspDeInit 1 */
 

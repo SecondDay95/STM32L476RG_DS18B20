@@ -27,7 +27,8 @@ Core/Src/wire.o: ../Core/Src/wire.c ../Core/Inc/wire.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
- ../Core/Inc/gpio.h ../Core/Inc/main.h ../Core/Inc/tim.h
+ ../Core/Inc/gpio.h ../Core/Inc/main.h ../Core/Inc/tim.h \
+ ../Core/Inc/usart.h
 ../Core/Inc/wire.h:
 ../Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l476xx.h:
@@ -60,3 +61,4 @@ Core/Src/wire.o: ../Core/Src/wire.c ../Core/Inc/wire.h \
 ../Core/Inc/gpio.h:
 ../Core/Inc/main.h:
 ../Core/Inc/tim.h:
+../Core/Inc/usart.h:
